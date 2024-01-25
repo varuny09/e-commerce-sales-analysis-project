@@ -1,0 +1,64 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.cluster import KMeans
+
+
+df = pd.read_csv('your_dataset.csv')
+
+
+print(df.info())
+print(df.head())
+
+
+def perform_customer_segmentation(data):
+    
+    features = data[['TotalSales', 'AverageRating']]
+
+    normalized_features = (features - features.mean()) / features.std()
+
+    
+    kmeans = KMeans(n_clusters=3, random_state=42)
+    data['Cluster'] = kmeans.fit_predict(normalized_features)
+
+    
+    sns.scatterplot(x='TotalSales', y='AverageRating', hue='Cluster', data=data)
+    plt.title('Customer Segmentation')
+    plt.xlabel('Total Sales')
+    plt.ylabel('Average Rating')
+    plt.show()
+
+
+def analyze_product_performance(data):
+    
+    top_products = data.groupby('ProductID')['Quantity'].sum().nlargest(5)
+
+    
+    top_products.plot(kind='bar', color='skyblue')
+    plt.title('Top Selling Products')
+    plt.xlabel('Product ID')
+    plt.ylabel('Total Quantity Sold')
+    plt.show()
+
+
+def analyze_sales_trends(data):
+    
+    data['OrderDate'] = pd.to_datetime(data['OrderDate'])
+
+    
+    data['YearMonth'] = data['OrderDate'].dt.to_period('M')
+
+    
+    monthly_sales = data.groupby('YearMonth')['TotalSales'].sum()
+
+    
+    monthly_sales.plot(kind='line', marker='o', color='orange')
+    plt.title('Monthly Sales Trends')
+    plt.xlabel('Year-Month')
+    plt.ylabel('Total Sales')
+    plt.show()
+
+
+perform_customer_segmentation(df)
+analyze_product_performance(df)
+analyze_sales_trends(df)
